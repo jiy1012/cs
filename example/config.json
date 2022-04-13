@@ -1,0 +1,22 @@
+{
+  "testFloat": 0.01,
+  "testInt": 1,
+  "testInt64": 2999999,
+  "testString": "test",
+  "testBoolean": true,
+  "testTime": "2017-01-01T00:00:00Z",
+  "testArray": [
+    "test",
+    "test2"
+  ],
+  "testEmptyArray": [
+  ],
+  "testSlice": [
+    {"test": "t1", "test2": "t2", "test3": "t3"},
+    {"test": "t2", "test2": "t4", "test3": "t5"}
+  ],
+  "testObject": {
+    "test": "test"
+  },
+  "testNull": null
+}

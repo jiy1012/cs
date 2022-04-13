@@ -1,0 +1,2 @@
+- { schedule: "0 18 * * *",message: "发日报了",atAll: true,type: "dingding",webhookUrl: "",title: "全员日报提醒",skipChineseHoliday: true }
+- { schedule: "30 20 * * *",message: "发日报",atPhone: "",type: "dingding",webhookUrl: "",title: "个人日报提醒",skipChineseHoliday: true }
