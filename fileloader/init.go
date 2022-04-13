@@ -1,9 +1,9 @@
 package fileloader
 
 import (
-	"github.com/jiy1012/configtostruct/fileloader/json"
-	"github.com/jiy1012/configtostruct/fileloader/toml"
-	"github.com/jiy1012/configtostruct/fileloader/yaml"
+	"github.com/jiy1012/cs/fileloader/json"
+	"github.com/jiy1012/cs/fileloader/toml"
+	"github.com/jiy1012/cs/fileloader/yaml"
 )
 
 var SupportedExts = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl", "tfvars", "dotenv", "env", "ini"}
