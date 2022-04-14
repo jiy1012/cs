@@ -21,7 +21,7 @@ func main() {
 	cFile := args.Input
 	ext := strings.TrimLeft(filepath.Ext(cFile), ".")
 	file := strings.TrimSuffix(filepath.Base(cFile), "."+ext)
-	fmt.Println(file)
+	//fmt.Println(file)
 	var c interface{}
 	fileBytes, err := utils.LoadFile(cFile)
 	if err != nil {
@@ -108,7 +108,7 @@ func parseMap(c interface{}, structName string) {
 			os.Exit(1)
 		}
 		//kType := reflect.TypeOf(k).Kind()
-		fmt.Println("ktype:", kString)
+		//fmt.Println("ktype:", kString)
 		v := iter.Value()
 		if v.Interface() != nil {
 			vTppe := reflect.TypeOf(v.Interface()).Kind()
