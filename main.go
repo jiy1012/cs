@@ -123,7 +123,11 @@ func parseMap(c interface{}, structName string) {
 				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			case reflect.Map:
-				fKey, fType = utils.Ucfirst(kString), utils.Ucfirst(kString)
+				if args.AutoAddPerfix {
+					fKey, fType = structName+utils.Ucfirst(kString), structName+utils.Ucfirst(kString)
+				} else {
+					fKey, fType = utils.Ucfirst(kString), utils.Ucfirst(kString)
+				}
 				parseMap(v.Interface(), fKey)
 			case reflect.Slice:
 				if len(v.Interface().([]interface{})) > 0 {
