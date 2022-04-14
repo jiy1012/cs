@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/alexflint/go-arg"
 	"github.com/jiy1012/cs/fileloader"
@@ -20,6 +21,7 @@ func main() {
 	cFile := args.Input
 	ext := strings.TrimLeft(filepath.Ext(cFile), ".")
 	file := strings.TrimSuffix(filepath.Base(cFile), "."+ext)
+	fmt.Println(file)
 	var c interface{}
 	fileBytes, err := utils.LoadFile(cFile)
 	if err != nil {
@@ -74,45 +76,72 @@ func parseSlice(c []interface{}, key string) string {
 	return fType
 }
 
+func getKeyString(key reflect.Value) (string, error) {
+	switch key.Kind() {
+	case reflect.String:
+		return key.String(), nil
+	case reflect.Interface:
+		s, err := getInterfaceKey(key)
+		return s, err
+	}
+	return "", errors.New(fmt.Sprintf("golang do not support type: %+v  for key: %+v ", key.Kind().String(), key))
+}
+
+func getInterfaceKey(key reflect.Value) (string, error) {
+	t := reflect.TypeOf(key.Interface()).Kind()
+	switch t {
+	case reflect.String:
+		return key.Interface().(string), nil
+	}
+	return "", errors.New(fmt.Sprintf("golang do not support type: %+v  for key: %+v ", t.String(), key))
+}
+
 func parseMap(c interface{}, structName string) {
 	var m []KvStruct
 	fKey, fType := "", ""
 	iter := reflect.ValueOf(c).MapRange()
 	for iter.Next() {
 		k := iter.Key()
+		kString, err := getKeyString(k)
+		if err != nil {
+			fmt.Println("get key error:", err)
+			os.Exit(1)
+		}
+		//kType := reflect.TypeOf(k).Kind()
+		fmt.Println("ktype:", kString)
 		v := iter.Value()
 		if v.Interface() != nil {
 			vTppe := reflect.TypeOf(v.Interface()).Kind()
 			switch vTppe {
 			case reflect.Int, reflect.Int8:
-				fKey = utils.Ucfirst(k.String())
+				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			case reflect.Int32, reflect.Int64:
-				fKey = utils.Ucfirst(k.String())
+				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			case reflect.String:
-				fKey = utils.Ucfirst(k.String())
+				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			case reflect.Map:
-				fKey, fType = utils.Ucfirst(k.String()), utils.Ucfirst(k.String())
+				fKey, fType = utils.Ucfirst(kString), utils.Ucfirst(kString)
 				parseMap(v.Interface(), fKey)
 			case reflect.Slice:
 				if len(v.Interface().([]interface{})) > 0 {
-					sType := parseSlice(v.Interface().([]interface{}), utils.Ucfirst(k.String()))
-					fKey, fType = utils.Ucfirst(k.String()), "[]"+sType
+					sType := parseSlice(v.Interface().([]interface{}), utils.Ucfirst(kString))
+					fKey, fType = utils.Ucfirst(kString), "[]"+sType
 				} else {
 					fKey = utils.Ucfirst(k.String())
 					fType = "[]interface{}"
 				}
 			case reflect.Bool:
-				fKey = utils.Ucfirst(k.String())
+				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			case reflect.Float64:
-				fKey = utils.Ucfirst(k.String())
+				fKey = utils.Ucfirst(kString)
 				fType = vTppe.String()
 			}
 		} else {
-			fKey = utils.Ucfirst(k.String())
+			fKey = utils.Ucfirst(kString)
 			fType = "interface{}"
 		}
 

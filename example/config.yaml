@@ -1,2 +1,20 @@
-port: 100
-db: mysql
+1: aaa
+port: 8061
+debug: true
+db:
+  mysql:
+    host:     localhost
+    port:     3306
+    user:     root
+    password:
+    database: passport
+    charset:  utf8
+    prefix:   passport_
+    timezone: UTC
+    options:  {}
+  redis:
+    host:     localhost
+    port:     6379
+    password:
+    database: 0
+    options:  {}
