@@ -2,11 +2,13 @@
 config file to golang struct,support json ,yaml,toml
 
 一、安装：
+
 1.源码编译
 
 ```
   git clone git@github.com:jiy1012/cs.git && cd cs && go build ./ && chmod -x cs
 ```
+
 2.brew安装
 
 ```
@@ -18,6 +20,7 @@ config file to golang struct,support json ,yaml,toml
 ```
 
 二、执行
+
 ```
 Usage: cs --input 输入文件 [--output 输出目录] [--package 生成文件的包名] [--goroot go安装目录，取环境变量GOROOT]
 
