@@ -171,6 +171,13 @@ func WriteStruct(structName string, m []KvStruct) {
 		}
 	}
 	fileName := filepath.Join(args.Output, structName+".go")
+	if _, err := os.Stat(fileName); err == nil || !os.IsNotExist(err) {
+		dErr := os.Remove(fileName)
+		if dErr != nil {
+			// 删除失败
+			fmt.Println("delete old file error :", dErr)
+		}
+	}
 	e := utils.WriteFile(fileName, []byte(fileContent))
 	if args.GoRoot != "" {
 		goFmt := filepath.Join(args.GoRoot, "bin", "gofmt")
