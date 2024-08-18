@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -161,6 +162,7 @@ func parseMap(c interface{}, structName string) {
 func WriteStruct(structName string, m []KvStruct) {
 	fileContent := "package " + args.Package + "\n"
 	fileContent += "type " + structName + " struct { \n"
+	sort.Sort(Sortable(m))
 	for _, kvStruct := range m {
 		fileContent += kvStruct.Field + " " + kvStruct.FieldType + "\n"
 	}
