@@ -1,8 +1,13 @@
 package main
 
+type InfoStruct struct {
+	ConfigFileType string
+}
+
 type KvStruct struct {
-	Field     string
-	FieldType string
+	Field         string
+	FieldType     string
+	FieldOriginal string
 }
 
 type Sortable []KvStruct

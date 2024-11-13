@@ -3,18 +3,20 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/alexflint/go-arg"
-	"github.com/jiy1012/cs/fileloader"
-	"github.com/jiy1012/cs/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/alexflint/go-arg"
+	"github.com/jiy1012/cs/fileloader"
+	"github.com/jiy1012/cs/utils"
 )
 
 var args Args
+var infoStruct InfoStruct
 
 func main() {
 	arg.MustParse(&args)
@@ -29,13 +31,16 @@ func main() {
 		fmt.Println("load file error:", err)
 		os.Exit(1)
 	}
-	err = fileloader.LoaderRegistrys.Load(ext, fileBytes, &c)
+	loaderName, err := fileloader.LoaderRegistrys.Load(ext, fileBytes, &c)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 
 	structName := utils.Case2CamelSpecial(file, true, []string{"_", "-"})
+
+	infoStruct.ConfigFileType = loaderName
+
 	configType := reflect.TypeOf(c)
 	switch configType.Kind() {
 	case reflect.Map:
@@ -99,11 +104,13 @@ func getInterfaceKey(key reflect.Value) (string, error) {
 
 func parseMap(c interface{}, structName string) {
 	var m []KvStruct
-	fKey, fType := "", ""
+	fKey, fType, fOriginKey := "", "", ""
 	iter := reflect.ValueOf(c).MapRange()
 	for iter.Next() {
 		k := iter.Key()
 		kString, err := getKeyString(k)
+		fOriginKey = kString
+		kString = utils.Case2CamelSpecial(kString, true, []string{"_", "-"})
 		if err != nil {
 			fmt.Println("get key error:", err)
 			os.Exit(1)
@@ -151,8 +158,9 @@ func parseMap(c interface{}, structName string) {
 		}
 
 		m = append(m, KvStruct{
-			Field:     fKey,
-			FieldType: fType,
+			Field:         fKey,
+			FieldType:     fType,
+			FieldOriginal: fOriginKey,
 		})
 	}
 	WriteStruct(structName, m)
@@ -164,7 +172,16 @@ func WriteStruct(structName string, m []KvStruct) {
 	fileContent += "type " + structName + " struct { \n"
 	sort.Sort(Sortable(m))
 	for _, kvStruct := range m {
-		fileContent += kvStruct.Field + " " + kvStruct.FieldType + "\n"
+		omitemptyString := ""
+		if args.AutoAddOmitempty {
+			omitemptyString = ",omitempty"
+		}
+		mapstructureTagString := ""
+		if args.AutoAddMapstructure {
+			mapstructureTagString = fmt.Sprintf("mapstructure:\"%s%s\"", kvStruct.FieldOriginal, omitemptyString)
+		}
+		tagString := fmt.Sprintf("`%s:\"%s%s\" %s`", infoStruct.ConfigFileType, kvStruct.FieldOriginal, omitemptyString, mapstructureTagString)
+		fileContent += kvStruct.Field + " " + kvStruct.FieldType + " " + tagString + "\n"
 	}
 	fileContent += "}\n"
 	if args.Output != "" {
@@ -181,7 +198,9 @@ func WriteStruct(structName string, m []KvStruct) {
 		}
 	}
 	e := utils.WriteFile(fileName, []byte(fileContent))
-	if args.GoRoot != "" {
+	if exec.Command("go", "fmt", fileName).Run() == nil {
+
+	} else if args.GoRoot != "" {
 		goFmt := filepath.Join(args.GoRoot, "bin", "gofmt")
 		err := exec.Command(goFmt, "-l", "-w", fileName).Run()
 		if err != nil {

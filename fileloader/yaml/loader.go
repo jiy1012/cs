@@ -2,15 +2,18 @@ package yaml
 
 import (
 	"errors"
-	"gopkg.in/yaml.v2"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Loader struct{}
 
-func (Loader) Load(file []byte, config interface{}) error {
+const Name = "yaml"
+
+func (Loader) Load(file []byte, config interface{}) (string, error) {
 	err := yaml.Unmarshal(file, config)
 	if err != nil {
-		return errors.New("load yaml file error")
+		return Name, errors.New("load yaml file error")
 	}
-	return nil
+	return Name, nil
 }

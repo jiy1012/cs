@@ -6,7 +6,7 @@ import (
 )
 
 type Loader interface {
-	Load(b []byte, v interface{}) error
+	Load(b []byte, v interface{}) (string, error)
 }
 
 type LoaderRegistry struct {
@@ -34,12 +34,12 @@ func (e *LoaderRegistry) RegisterDecoder(ext string, enc Loader) error {
 	return nil
 }
 
-func (e *LoaderRegistry) Load(ext string, b []byte, v interface{}) error {
+func (e *LoaderRegistry) Load(ext string, b []byte, v interface{}) (string, error) {
 	e.mu.RLock()
 	loader, ok := e.loaders[ext]
 	e.mu.RUnlock()
 	if !ok {
-		return ErrLoaderNotFound
+		return "", ErrLoaderNotFound
 	}
 	return loader.Load(b, v)
 }
